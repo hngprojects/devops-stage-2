@@ -1,0 +1,102 @@
+name: Build and Push Docker Images
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+env:
+  REPOSITORY: eshietiy
+  FRONTEND_IMAGE_NAME: stage02_frontend
+  BACKEND_IMAGE_NAME: stage02_backend
+  TAG_NAME: latest
+
+jobs:
+  build_backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Clone env config repository
+        run: git clone https://github.com/EshietIy/stage02.git
+
+      - name: Build Docker Image for backend
+        working-directory: ./backend
+        run: |
+          docker build \
+              --build-arg ENV_FILE=../stage02/backend/.env \
+              -t "${{ env.BACKEND_IMAGE_NAME }}:latest" \
+              .
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker tag ${{ env.BACKEND_IMAGE_NAME }}:latest ${{ env.REPOSITORY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ env.TAG_NAME }}
+          docker push ${{ env.REPOSITORY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ env.TAG_NAME }}
+
+      - name: Post cleanup
+        run: docker logout
+
+  build_frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Add SSH key
+        uses: webfactory/ssh-agent@v0.5.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Clone env config repository
+        run: git clone https://github.com/EshietIy/stage02.git
+
+      - name: Build Docker Image for frontend
+        working-directory: ./frontend
+        run: |
+          docker build \
+              --build-arg ENV_FILE=../stage02/frontend/.env \
+              -t "${{ env.FRONTEND_IMAGE_NAME }}:latest" \
+              .
+
+      - name: Push Docker Image to Docker Hub
+        run: |
+          docker tag ${{ env.FRONTEND_IMAGE_NAME }}:latest ${{ env.REPOSITORY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ env.TAG_NAME }}
+          docker push ${{ env.REPOSITORY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ env.TAG_NAME }}
+
+      - name: Post cleanup
+        run: docker logout
