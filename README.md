@@ -18,3 +18,9 @@ To get started with this template, please follow the instructions in the respect
 - [Frontend README](./frontend/README.md)
 - [Backend README](./backend/README.md)
 
+
+#Build the image
+docker-compose build
+
+#Run the container
+docker-compose up
