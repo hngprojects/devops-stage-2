@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Images
 
 on:
   push:
@@ -28,12 +28,19 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
-      - name: Build and push Docker image
+      - name: Build and push backend Docker image
         uses: docker/build-push-action@v4
         with:
-          context: .
+          context: ./backend
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/fastapi-application:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/backend-application:latest
+
+      - name: Build and push frontend Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: ./frontend
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/frontend-application:latest
 
       - name: Post cleanup
         run: docker logout
