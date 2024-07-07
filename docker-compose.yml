@@ -1,0 +1,66 @@
+version: '3.7'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "5173:5173"
+    networks:
+      - web
+
+  backend:
+    build:
+      context: ./backend
+    container_name: backend
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - db  
+    networks:
+      - web
+
+  db:
+    image: postgres:13
+    container_name: db
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: changethis123
+      POSTGRES_DB: app
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - web
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "8080:8080"
+    networks:
+      - web
+
+  nginx-proxy-manager:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: always
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    environment:
+      DB_SQLITE_FILE: "/data/database.sqlite"
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    networks:
+      - web
+
+networks:
+  web:
+
+volumes:
+  pgdata:
+
