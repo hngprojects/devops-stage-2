@@ -1,42 +1,44 @@
-FROM python:3.10
+FROM python:3.10-slim
+
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONPATH "${PYTHONPATH}:/app"
+
+RUN apt-get update && apt-get install -y \
+    libpq-dev
 
 WORKDIR /app
 
-COPY pyproject.toml poetry.lock ./
+RUN pip install poetry
+COPY pyproject.toml poetry.lock /app/
+RUN poetry config virtualenvs.create true \
+    && poetry install --no-dev --no-interaction --no-ansi
 
-RUN pip install poetry && \
-    poetry config virtualenvs.create false && \
-    poetry install --no-dev
+COPY . /app/
 
-COPY . .
-
-ENV PYTHONPATH "${PYTHONPATH}:/app"
-
-RUN poetry run bash ./prestart.sh
+RUN chmod +x /app/prestart.sh
 
 EXPOSE 8000
 
-CMD [ "poetry", "run", "uvicorn", "app.main:app", "--reload --host 0.0.0.0 --port 8000"]
+ENTRYPOINT ["poetry", "run", "bash", "-c", "/app/prestart.sh && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
 
 
-
-# FROM python:3.11-slim
+# FROM python:3.10
 
 # WORKDIR /app
 
-# RUN apt-get update && apt-get install -y curl && \
-#     curl -sSL https://install.python-poetry.org | python3 -
+# COPY pyproject.toml poetry.lock ./
 
-# ENV PATH="/root/.local/bin:${PATH}"
-
-# COPY poetry.lock pyproject.toml ./
-
-# RUN poetry install
+# RUN pip install poetry && \
+#     poetry config virtualenvs.create false && \
+#     poetry install --no-dev
 
 # COPY . .
 
-# RUN poetry run bash ./prestart.sh   
+# ENV PYTHONPATH "${PYTHONPATH}:/app"
+
+# RUN poetry run bash ./prestart.sh
 
 # EXPOSE 8000
 
-# CMD ["poetry", "run", "uvicorn", "app.main:app", "--reload",]
+# CMD [ "poetry", "run", "uvicorn", "app.main:app", "--reload --host 0.0.0.0 --port 8000"]

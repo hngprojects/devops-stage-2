@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database service
+  postgres_db:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  # Backend service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    environment:
+      POSTGRES_SERVER: postgres_db
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: password
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres_db
+    networks:
+      - app-network
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+# Define a common network
+networks:
+  app-network:
+    driver: bridge
+
+# Define volumes for persistence
+volumes:
+  pgdata:
