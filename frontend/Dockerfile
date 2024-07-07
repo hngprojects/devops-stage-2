@@ -1,31 +1,25 @@
-# Stage 1: Build the application
-FROM node:alpine AS build
+#Use the latest node image to build
+FROM node:latest
 
-WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
-COPY package.json package-lock.json ./
+#set the working directory
+WORKDIR /user/src/app
+
+
+#Copy the dependencies
+COPY package*.json ./
+
+
+#copy the project folder to the working directory
+COPY . /user/src/app
+
+#install dependencies
 RUN npm install
 
-# Copy the rest of the application code and build the application
-COPY . .
-RUN npm run build
 
-# Stage 2: Production-ready image
-FROM node:alpine
+#expose port
+EXPOSE 5173
 
-WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json for production dependencies
-COPY --from=build /usr/src/app/package.json /usr/src/app/package-lock.json ./
-RUN npm install
-
-# Copy the build output to the production image
-COPY --from=build /usr/src/app/public ./public
-COPY . .
-
-# Expose the port that the application will run on
-EXPOSE 3000
-
-# Command to run the application
-CMD ["npm", "run", "dev"]
+#Start the app
+CMD ["npm", "run", "dev", "--", "--host"]
