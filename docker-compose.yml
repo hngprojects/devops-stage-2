@@ -57,15 +57,17 @@ services:
 
   nginx:
     image: 'jc21/nginx-proxy-manager:latest'
-    restart: unless-stopped
+    restart: 'unless-stopped'
     ports:
       - '80:80'
-      - '81:81'
       - '443:443'
       - '8090:81'
+    environment:
+      DB_SQLITE_FILE: "/data/database.sqlite"
     volumes:
-      - ./data:/data
-      - ./letsencrypt:/etc/letsencrypt
+      - data:/data
+      - letsencrypt:/etc/letsencrypt
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - app-network
 # Define a common network
