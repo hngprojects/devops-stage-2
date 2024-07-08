@@ -19,26 +19,9 @@ Each directory has its own README file with detailed instructions to set up and 
 =======
 Each directory has its own README file with detailed instructions to set up and run the application locally without a need for containers. 
 
-## Prerequisites
-- Docker
-- Docker Compose
-
-### Services needed to run and build this application locally and in containers.
-- This repository contains a full-stack application setup using Docker Compose. 
-- The application consists of a FastAPI backend, a Node.js frontend, a PostgreSQL database, an Adminer database management tool, an Nginx Proxy Manager, and an Nginx web server.
-
-- **backend**: FastAPI application serving the backend API.
-- **frontend**: Node.js application serving the frontend.
-- **Remote Postgres db**: Remote PostgreSQL database for storing application data hosted on Azure
-- **adminer**: Database management tool to interact with the PostgreSQL database.
-- **proxy**: Nginx Proxy Manager to handle SSL certificates and domain management.
-- **nginx**: Nginx web server to serve the frontend and reverse proxy requests to the backend.
-
-
 ## Application Deployment with Docker.
 
-
-## Prerequisites
+### Prerequisites
 - Docker
 - Docker Compose
 
@@ -46,7 +29,7 @@ Each directory has its own README file with detailed instructions to set up and 
 - This repository contains a full-stack application setup using Docker Compose. 
 - The application consists of a FastAPI backend, a Node.js frontend, a PostgreSQL database, an Adminer database management tool, an Nginx Proxy Manager, and an Nginx web server.
 
-**Your DB can be self hosted or a remote DB on a cloud service**
+**Your DB can be self-hosted or a remote DB on a cloud service**
 
 - **backend**: FastAPI application serving the backend API.
 - **frontend**: Node.js application serving the frontend.
@@ -141,93 +124,7 @@ services:
     restart: always
 ```
 
-## Accessing the Application
-
-=======
-1. **Clone the repository**:
-
-   ```sh
-   git clone https://github.com/Eben-DevOps/Full-Stack-Web-App
-   cd Full-Stack-Web-App
-   ```
-
-2. **Build and start the services** (detached mode is optional):
-
-   ```sh
-   docker-compose build
-   docker-compose up -d
-   ```
-
-3. **Verify the services are running**:
-   - **FastAPI Backend**: [http://localhost/api](http://localhost/api)
-   - **Node.js Frontend**: [http://localhost](http://localhost)
-   - **Azure PostgreSQL Database**: Accessible on port `5432` (no direct browser access)
-   - **Adminer**: [http://localhost:8080](http://localhost:8080) or [http://db.localhost](http://db.localhost)
-   - **Nginx Proxy Manager**: [http://localhost:8090](http://localhost:8090) or [http://proxy.localhost](http://proxy.localhost)
-
-## Service Details
-
-### Backend (FastAPI)
-
-- **Directory**: `./backend`
-- **Docker Container**: `fastapi_app`
-- **Port**: `8000`
-- **Environment Variables**:
-  - `POSTGRES_SERVER`: Hostname of the PostgreSQL server.
-  - `POSTGRES_PASSWORD`: Password for the PostgreSQL user.
-
-### Frontend (Node.js)
-
-- **Directory**: `./frontend`
-- **Docker Container**: `nodejs_app`
-- **Port**: `5173`
-- **Environment Variables**:
-  - `VITE_API_URL`: URL of the backend API.
-
-### Database (PostgreSQL)
-
-- **Docker Image**: `postgres:latest`
-- **Docker Container**: `postgres_db`
-- **Port**: `5432`
-- **Environment Variables**:
-  - `POSTGRES_USER`: Username for PostgreSQL.
-  - `POSTGRES_PASSWORD`: Password for the PostgreSQL user.
-  - `POSTGRES_DB`: Name of the PostgreSQL database.
-- **Volumes**:
-  - `postgres_data`: Persists PostgreSQL data.
-
-### Adminer
-
-- **Docker Image**: `adminer`
-- **Docker Container**: `adminer`
-- **Port**: `8080`
-
-### Proxy (Nginx Proxy Manager)
-
-- **Docker Image**: `jc21/nginx-proxy-manager:latest`
-- **Docker Container**: `nginx_proxy_manager`
-- **Port**: `8090`
-- **Volumes**:
-  - `./data`: Persistent data for the proxy manager.
-  - `./letsencrypt`: SSL certificates.
-
-### Nginx
-
-- **Docker Image**: `nginx:latest`
-- **Docker Container**: `nginx`
-- **Port**: `80`
-- **Volumes**:
-  - `./nginx.conf`: Configuration file for Nginx.
-  - `./proxy_params.conf`: Proxy parameters for Nginx.
-- **Depends On**:
-  - `frontend`
-  - `backend`
-  - `db`
-  - `adminer`
-  - `proxy`
-
-## Accessing the Application
-
+## Accessing the Application via browser
 
 - **Localhost**: You can access the application via `http://localhost`.
 - **Custom Domain**: You can set up your domain to connect to the application using the Nginx Proxy Manager.
