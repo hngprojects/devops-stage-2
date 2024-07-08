@@ -13,8 +13,6 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-    networks:
-      - app-network
 
   # Backend service
   backend:
@@ -23,16 +21,11 @@ services:
       dockerfile: Dockerfile
     container_name: backend
     environment:
-      POSTGRES_SERVER: postgres_db
-      POSTGRES_DB: app
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: password
+      ./backend/.env
     ports:
       - "8000:8000"
     depends_on:
       - postgres_db
-    networks:
-      - app-network
 
   # Frontend service
   frontend:
@@ -44,16 +37,13 @@ services:
       - "5173:5173"
     depends_on:
       - backend
-    networks:
-      - app-network
 
   adminer:
     image: adminer
     restart: always
     ports:
       - "8080:8080"
-    networks:
-      - app-network
+
 
   nginx:
     image: 'jc21/nginx-proxy-manager:latest'
@@ -67,12 +57,7 @@ services:
     volumes:
       - data:/data
       - letsencrypt:/etc/letsencrypt
-    networks:
-      - app-network
-# Define a common network
-networks:
-  app-network:
-    driver: bridge
+
 
 # Define volumes for persistence
 volumes:
