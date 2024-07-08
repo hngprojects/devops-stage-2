@@ -67,7 +67,6 @@ services:
     volumes:
       - data:/data
       - letsencrypt:/etc/letsencrypt
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     networks:
       - app-network
 # Define a common network
@@ -77,4 +76,6 @@ networks:
 
 # Define volumes for persistence
 volumes:
-  pgdata:
+  pgdata2:
+  data:
+  letsencrypt:
