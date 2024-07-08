@@ -9,21 +9,33 @@ This directory contains the frontend of the application built with ReactJS and C
 
 ## Setup Instructions
 
-1. **Navigate to the frontend directory**:
+ **Navigate to the frontend directory**:
     ```sh
     cd frontend
     ```
 
-2. **Install dependencies**:
+**Install dependencies**:
     ```sh
     npm install
     ```
 
-3. **Run the development server**:
+**Run the development server**:
     ```sh
     npm run dev
     ```
 
-4. **Configure API URL**:
-   Ensure the API URL is correctly set in the `.env` file.
+**testing the application using curl**
+```sh
+curl localhost:5173
+```
 
+**testing the application using a web browser locally**
+```sh
+http://<your_domain_name-or-your_machine_ip>:5173
+```
+
+**Configure API URL**:
+- navigate to the .env file in the frontend root folder and change the VITE_API_URL to point to you domain name instead of localhost:
+```sh
+VITE_API_URL=http://<your_domain_name>
+```
