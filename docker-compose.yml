@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./frontend/.env
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    environment:
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1
+      PYTHONPATH: /app
+    volumes:
+      - ./backend:/app
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    ports:
+      - "8080:8080"
+
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    ports:
+      - "80:80"     # Nginx Proxy Manager handles HTTP on port 80
+      - "8090:81"
+      - "443:443"   # Assuming Nginx Proxy Manager's management UI runs on port 81
+    env_file:
+      - .env
+    environment:
+      DB_PG_HOST: ${DB_PG_HOST}
+      DB_PG_PORT: ${DB_PG_PORT}
+      DB_PG_USER: ${DB_PG_USER}
+      DB_PG_PASSWORD: ${DB_PG_PASSWORD}
+      DB_PG_NAME: ${DB_PG_NAME}
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    restart: always
