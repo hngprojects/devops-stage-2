@@ -12,39 +12,41 @@ This repository is organized into two main directories from the root folder:
 
 Each directory has its own README file with detailed instructions to set up and run the application locally without a need for containers. 
 
-To run this application locally, please follow the instructions in the respective directories:
-###Services needed to run and build this application locally and in containers.
+## Prerequisites
+- Docker
+- Docker Compose
 
-This repository contains a full-stack application setup using Docker Compose. The application consists of a FastAPI backend, a Node.js frontend, a PostgreSQL database, an Adminer database management tool, an Nginx Proxy Manager, and an Nginx web server.
-
-## Services
+### Services needed to run and build this application locally and in containers.
+- This repository contains a full-stack application setup using Docker Compose. 
+- The application consists of a FastAPI backend, a Node.js frontend, a PostgreSQL database, an Adminer database management tool, an Nginx Proxy Manager, and an Nginx web server.
 
 - **backend**: FastAPI application serving the backend API.
 - **frontend**: Node.js application serving the frontend.
-- **db**: PostgreSQL database for storing application data.
+- **Remote Postgres db**: Remote PostgreSQL database for storing application data hosted on Azure
 - **adminer**: Database management tool to interact with the PostgreSQL database.
 - **proxy**: Nginx Proxy Manager to handle SSL certificates and domain management.
 - **nginx**: Nginx web server to serve the frontend and reverse proxy requests to the backend.
 
-## Setup Instructions
+## Application Deployment with Docker.
 
 1. **Clone the repository**:
 
    ```sh
-   git clone https://github.com/Ravencodess/devops-stage-2
-   cd devops-stage-2
+   git clone https://github.com/Eben-DevOps/Full-Stack-Web-App
+   cd Full-Stack-Web-App
    ```
 
-2. **Build and start the services**:
+2. **Build and start the services** (detached mode is optional):
 
    ```sh
-   docker compose up -d
+   docker-compose build
+   docker-compose up -d
    ```
 
 3. **Verify the services are running**:
    - **FastAPI Backend**: [http://localhost/api](http://localhost/api)
    - **Node.js Frontend**: [http://localhost](http://localhost)
-   - **PostgreSQL Database**: Accessible on port `5432` (no direct browser access)
+   - **Azure PostgreSQL Database**: Accessible on port `5432` (no direct browser access)
    - **Adminer**: [http://localhost:8080](http://localhost:8080) or [http://db.localhost](http://db.localhost)
    - **Nginx Proxy Manager**: [http://localhost:8090](http://localhost:8090) or [http://proxy.localhost](http://proxy.localhost)
 
