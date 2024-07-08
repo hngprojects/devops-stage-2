@@ -20,7 +20,7 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: backend
-    environment:
+    env_file:
       - ./backend/.env
     ports:
       - "8000:8000"
@@ -33,6 +33,8 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: frontend
+    env_file:
+      - ./frontend/.env
     ports:
       - "5173:5173"
     depends_on:
