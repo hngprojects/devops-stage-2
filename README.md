@@ -58,8 +58,8 @@ Each directory has its own README file with detailed instructions to set up and 
    - **Adminer**: [http://localhost:8080](http://localhost:8080) or [http://db.localhost](http://db.localhost)
    - **Nginx Proxy Manager**: [http://localhost:8090](http://localhost:8090) or [http://proxy.localhost](http://proxy.localhost)
 
-## for my deployment my docker-compose file looks like this
-- **note that i used a remote db as you will no see a a db service on this**
+## For my deployment my docker-compose file looks like this
+- **note that I used a remote db as you will not see a db service on this**
 ```sh
 version: '3.8'
 
