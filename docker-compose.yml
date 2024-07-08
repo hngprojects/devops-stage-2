@@ -1,0 +1,68 @@
+version: '3.1'
+
+services:
+
+  frontend:
+    build: ./frontend
+    labels:
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    env_file:
+      - ./backend/.env
+    expose:
+      - "8000"
+    labels:
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.docs.rule=PathPrefix(`/docs`)"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+    depends_on:
+      - db
+  
+  db:
+    image: postgres:latest
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_healthcheck"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    labels:
+      - "traefik.http.routers.adminer.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.adminer.rule=Host(`db.domain.localhost`)"
+      - "traefik.http.services.adminer.loadbalancer.server.port=8080"
+    environment:
+      - ADMINER_DEFAULT_SERVER=db
+
+  traefik:
+    image: traefik:v2.9
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.dashboard.address=:8090"
+
+    ports:
+      - "80:80"
+      - "8090:8090"
+
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`proxy.domain.localhost`)"
+      - "traefik.http.routers.traefik.entrypoints=dashboard"
+      - "traefik.http.routers.traefik.service=api@internal"
+
