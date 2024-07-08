@@ -1,51 +1,51 @@
 version: '3.8'
 
 services:
-  # PostgreSQL database service
-  postgres_db:
+  postgresdb:
     image: postgres:latest
-    container_name: postgres_db
-    environment:
-      POSTGRES_DB: app
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-
-  # Backend service
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    container_name: backend
     env_file:
       - ./backend/.env
     ports:
-      - "8000:8000"
-    depends_on:
-      - postgres_db
+      - "5432:5432"
+    volumes:
+      - pgdata2:/var/lib/postgresql/data
+    restart: always
 
-  # Frontend service
-  frontend:
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgresdb
+      ADMINER_DEFAULT_DRIVER: pgsql
+
+  backend:
+    image: backend
     build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgresdb
+    restart: always
+ 
+  frontend:
+    image: frontend
+    build: 
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: frontend
-    env_file:
-      - ./frontend/.env
     ports:
       - "5173:5173"
     depends_on:
       - backend
-
-  adminer:
-    image: adminer
+    env_file:
+      - ./frontend/.env
     restart: always
-    ports:
-      - "8080:8080"
-
 
   nginx:
     image: 'jc21/nginx-proxy-manager:latest'
@@ -60,9 +60,7 @@ services:
       - data:/data
       - letsencrypt:/etc/letsencrypt
 
-
-# Define volumes for persistence
 volumes:
-  pgdata:
+  pgdata2:
   data:
   letsencrypt:
