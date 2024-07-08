@@ -76,6 +76,6 @@ networks:
 
 # Define volumes for persistence
 volumes:
-  pgdata2:
+  pgdata:
   data:
   letsencrypt:
