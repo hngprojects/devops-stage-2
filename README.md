@@ -105,9 +105,9 @@ services:
     image: jc21/nginx-proxy-manager:latest
     container_name: nginx-proxy-manager
     ports:
-      - "80:80"     # Nginx Proxy Manager handles HTTP on port 80
+      - "80:80"
       - "8090:81"
-      - "443:443"   # Assuming Nginx Proxy Manager's management UI runs on port 81
+      - "443:443"
     env_file:
       - .env
     environment:
