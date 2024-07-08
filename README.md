@@ -13,11 +13,9 @@ This repository is organized into two main directories from the root folder:
 
 Each directory has its own README file with detailed instructions to set up and run the application locally without a need for containers.
 
-## To run this application locally, please see the read me files below
+## To run this application locally, please see the readme files below
 - [Frontend README](./frontend/README.md)
 - [Backend README](./backend/README.md)
-=======
-Each directory has its own README file with detailed instructions to set up and run the application locally without a need for containers. 
 
 ## Application Deployment with Docker.
 
