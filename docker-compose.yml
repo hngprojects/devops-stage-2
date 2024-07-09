@@ -22,7 +22,7 @@ services:
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
     depends_on:
       - db
-  
+
   db:
     image: postgres:latest
     env_file:
@@ -41,7 +41,7 @@ services:
       - "8080:8080"
     labels:
       - "traefik.http.routers.adminer.rule=PathPrefix(`/`)"
-      - "traefik.http.routers.adminer.rule=Host(`db.domain.localhost`)"
+      - "traefik.http.routers.adminer.rule=Host(`db.cadaservices.tech`)"
       - "traefik.http.services.adminer.loadbalancer.server.port=8080"
     environment:
       - ADMINER_DEFAULT_SERVER=db
@@ -52,17 +52,15 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
-      - "--entrypoints.dashboard.address=:8090"
 
     ports:
       - "80:80"
-      - "8090:8090"
+      - "8090:8080"
 
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`proxy.domain.localhost`)"
-      - "traefik.http.routers.traefik.entrypoints=dashboard"
+      - "traefik.http.routers.traefik.rule=Host(`proxy.cadaservices.tech`)"
       - "traefik.http.routers.traefik.service=api@internal"
-
+      - "traefik.http.services.traefik.loadbalancer.server.port=8090"
