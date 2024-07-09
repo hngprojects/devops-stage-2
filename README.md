@@ -18,3 +18,17 @@ To get started with this template, please follow the instructions in the respect
 - [Frontend README](./frontend/README.md)
 - [Backend README](./backend/README.md)
 
+## Creating the image
+- To start the service, "cd" into the web-app-dockerizing directory and run command. Note: ensure that the docker and docker-compose is installed on your machine
+```bash
+docker-compose up -d
+```
+
+- Access the application on : **localhost/**
+- Access adminer on : **db.localhost**
+- Access traefik the proxy manager on : **proxy.localhost**
+
+## The deployed app
+- Access the deployed app on: **www.cadaservices.tech**
+- Access the deployed adminer on: **db.cadaservices.tech**
+- Access the deployed traefik on: **proxy.cadaservices.tech**
