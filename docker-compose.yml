@@ -5,8 +5,11 @@ services:
   frontend:
     build: ./frontend
     labels:
-      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
       - "traefik.http.services.frontend.loadbalancer.server.port=80"
+      - "traefik.http.routers.frontend.rule=Host(`www.cadaservices.tech`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+
     depends_on:
       - backend
 
@@ -18,8 +21,13 @@ services:
       - "8000"
     labels:
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=myresolver"
       - "traefik.http.routers.docs.rule=PathPrefix(`/docs`)"
+      - "traefik.http.routers.docs.entrypoints=websecure"
+      - "traefik.http.routers.docs.tls.certresolver=myresolver"
       - "traefik.http.services.backend.loadbalancer.server.port=8000"
+
     depends_on:
       - db
 
@@ -30,7 +38,7 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD", "pg_healthcheck"]
+      test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -40,8 +48,9 @@ services:
     ports:
       - "8080:8080"
     labels:
-      - "traefik.http.routers.adminer.rule=PathPrefix(`/`)"
       - "traefik.http.routers.adminer.rule=Host(`db.cadaservices.tech`)"
+      - "traefik.http.routers.adminer.entrypoints=websecure"
+      - "traefik.http.routers.adminer.tls.certresolver=myresolver"
       - "traefik.http.services.adminer.loadbalancer.server.port=8080"
     environment:
       - ADMINER_DEFAULT_SERVER=db
@@ -49,18 +58,33 @@ services:
   traefik:
     image: traefik:v2.9
     command:
-      - "--api.insecure=true"
+      - "--api.insecure=true"  # Enable the Traefik dashboard
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=chinonsodomnic@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
 
     ports:
       - "80:80"
-      - "8090:8080"
+      - "8090:8080"  # Port for the Traefik dashboard
+      - "443:443"
 
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./letsencrypt:/letsencrypt"
+
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.traefik.rule=Host(`proxy.cadaservices.tech`)"
       - "traefik.http.routers.traefik.service=api@internal"
-      - "traefik.http.services.traefik.loadbalancer.server.port=8090"
+      - "traefik.http.routers.traefik.entrypoints=websecure"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+      - "traefik.http.routers.traefik.middlewares=redirect-to-https"
+
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{any:.+}`)"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https"
