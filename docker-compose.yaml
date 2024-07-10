@@ -1,0 +1,78 @@
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - 5173:5173
+    environment:
+       VITE_API_URL: http://localhost:8000
+    depends_on:
+      backend:
+        condition: service_started
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - 8000:8000
+    env_file:
+      - path: ./backend/.env
+
+
+  postgres:
+    image: postgres:13
+    restart: always
+    shm_size: 128mb
+    ports:
+      - 5432:5432
+    user: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: example
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 10s
+      start_period: 30s
+      retries: 5
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+  npm_db:
+    image: jc21/mariadb-aria:latest
+    container_name: npm_db
+    environment:
+      MYSQL_ROOT_PASSWORD: 'example_root_password'
+      MYSQL_DATABASE: 'npm'
+      MYSQL_USER: 'npm'
+      MYSQL_PASSWORD: 'example'
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    restart: unless-stopped
+
+  npm_app:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: npm_app
+    ports:
+      - "80:80"
+      - "81:81"
+      - "443:443"
+    environment:
+      DB_MYSQL_HOST: "npm_db"
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: "npm"
+      DB_MYSQL_PASSWORD: "example"
+      DB_MYSQL_NAME: "npm"
+    volumes:
+      - ./data/npm:/data
+      - ./data/letsencrypt:/etc/letsencrypt
+    depends_on:
+      - npm_db
+    restart: unless-stopped
+    
+volumes:
+  postgres-data:
+
