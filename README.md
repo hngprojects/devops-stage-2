@@ -20,13 +20,14 @@ To get started with this template, please follow the instructions in the respect
 
 ## Creating the image
 - To start the service, "cd" into the web-app-dockerizing directory and run command. Note: ensure that the docker and docker-compose is installed on your machine
+
+*Note:*
+- *ensure that docker and docker-compose have been properly installed on your system*
+- *Ensure you add the current loggedin user to docker group so you don't have to use sudo all the time in running docker-compose or docker*
+
 ```bash
 docker-compose up -d
 ```
-
-- Access the application on : **localhost/**
-- Access adminer on : **db.localhost**
-- Access traefik the proxy manager on : **proxy.localhost**
 
 ## The deployed app
 - Access the deployed app on: **www.cadaservices.tech**
