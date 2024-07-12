@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  postgresdb:
+    image: postgres:latest
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata2:/var/lib/postgresql/data
+    restart: always
+
+  adminer:
+    image: adminer:latest
+    container_name: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgresdb
+      ADMINER_DEFAULT_DRIVER: pgsql
+
+  backend:
+    image: backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - postgresdb
+    restart: always
+ 
+  frontend:
+    image: frontend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    env_file:
+      - ./frontend/.env
+    restart: always
+
+  nginx:
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: 'unless-stopped'
+    ports:
+      - '80:80'
+      - '443:443'
+      - '8090:81'
+    environment:
+      DB_SQLITE_FILE: "/data/database.sqlite"
+    volumes:
+      - data:/data
+      - letsencrypt:/etc/letsencrypt
+
+volumes:
+  pgdata2:
+  data:
+  letsencrypt:
