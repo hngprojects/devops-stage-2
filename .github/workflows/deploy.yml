@@ -1,0 +1,74 @@
+name: Deploy on pull request
+
+on:
+  pull_request:
+    types: [opened, synchronized, reopened, closed]
+
+jobs:
+  deploy:
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: checkout code
+      uses: actions/checkout@v2
+
+    - name: setup docker buildz
+      uses: docker/setup-buildx-action@v1
+
+    - name: Build container
+      run: |
+        docker build -t pr-${{ github.event.number }} . || echo "build_failed=true" >> $GITHUB_ENV
+
+    - name: deploy or update container
+      run: |
+        CONTAINER_NAME=pr-$ {{ github.event.number }}
+        RUNNING=$(docker ps --filter "name=$CONTAINER_NAME" -q)
+        if [ -n "$RUNNING" ]; then
+          echo "Container $CONTAINER_NAME is running, updating..."
+          docker stop $CONTAINER_NAME || echo "deploy_failed=true" >> $GITHUB_ENV
+          docker rm $CONTAINER_NAME || echo "deploy_failed=true" >> $GITHUB_ENV
+        else
+          echo "Creating a new container $CONTAINER_NAME"
+        fi
+        docker run -d --name $CONTAINER_NAME -p 80:80 pr-${{ github.event.number }} || echo "deploy_failed=true" >> $GITHUB_ENV
+    
+    - name: set deployment status
+      if: always()
+      run: |
+        if [ "${{ env.build_failed }}" == "true" ]; then
+          echo "Deployment failed during build."
+          echo "deployment_status=failure" >> $GITHUB_ENV
+        elif [ "${{ env.deploy_failed }}" == "true" ]; then
+          echo "Deployment failed during container deployment."
+          echo "deployment_status=failure" >> $GITHUB_ENV
+        else
+          echo "Deployment successful."
+          echo "deployment_status=success" >> $GITHUB_ENV
+
+  notify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: ${{ env.deployment_status }} == 'failure' || ${{ env.deployment_status }} == 'success'
+
+    steps:
+    - name: notify github bot
+      run: |
+        curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+        -H "Content-Type: application/json" \
+        -d '{
+            "body": "Deployment status: ${{ env.deployment_status }}, Pull request: pr-${{ github.event.number }})"
+          }' \
+        https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.number }}/comments
+
+      
+  cleanup:
+    if: github.event.action == 'closed'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Removes a container
+      run: |
+        docker stop pr-${{ github.event.number }}
+        docker rm pr-${{ github.event.number }}
+
